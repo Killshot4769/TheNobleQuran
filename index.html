@@ -35,6 +35,7 @@ header h1 {
 header p {
   font-size: 1rem;
   opacity: 0.9;
+  margin: 2px 0;
 }
 .container {
   max-width: 1200px;
@@ -50,61 +51,50 @@ header p {
   transition: transform 0.2s;
 }
 .card:hover { transform: translateY(-3px); }
-.continue { border-left:6px solid var(--gold); }
 .grid {
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:1.5rem;
+  display:flex;
+  justify-content:center;
   margin-bottom:2rem;
 }
 .action {
   text-align:center;
-  padding:2rem 1rem;
+  padding:2rem 2rem;
   font-weight:600;
   border:1px solid #ddd;
   border-radius:14px;
   cursor:pointer;
   background:white;
   transition: all 0.2s;
-  font-size:1.1rem;
+  font-size:1.2rem;
 }
 .action:hover {
   border-color: var(--gold);
   background: #fdfaf5;
   transform: translateY(-3px);
 }
+.ayah-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: var(--green);
+}
 .ayah-ar {
   font-family:'Amiri', serif;
   font-size:2rem;
   text-align:center;
   line-height:3rem;
-  margin-bottom:0.5rem;
+  margin-bottom:0.7rem;
 }
 .ayah-en {
   text-align:center;
   color: var(--secondary);
   font-size:1.1rem;
   line-height:1.8rem;
+  margin-bottom:1rem;
 }
-nav {
-  display:flex;
-  justify-content:space-around;
-  margin-top:2rem;
-  padding-top:1rem;
-  border-top:1px solid #ddd;
-}
-nav button {
-  flex:1;
-  padding:1rem;
-  background:none;
-  border:none;
-  font-weight:600;
-  cursor:pointer;
-  font-size:1rem;
-  color: var(--secondary);
-  transition: 0.2s;
-}
-nav button.active, nav button:hover { color: var(--green); }
+nav { display:none; }
 
 /* Fullscreen PDF Overlay */
 #pdfOverlay {
@@ -146,35 +136,44 @@ nav button.active, nav button:hover { color: var(--green); }
 <body>
 
 <header>
-<h1>The Noble Quran</h1>
-<p>Desktop Quran Reader</p>
+  <h1>The Noble Quran</h1>
+  <p>Desktop Quran Reader</p>
+  <p style="font-size:0.95rem; opacity:0.8;">Created by Naveed</p>
 </header>
 
 <div class="container">
-  <div class="card continue">
-    <strong>Continue Reading</strong>
-    <p>Surah Al-Baqarah • Ayah 25</p>
-  </div>
 
+  <!-- PDF Button -->
   <div class="grid">
-    <div class="action" onclick="showPDF()">📖 Quran (PDF)</div>
-    <div class="action">🎧 Audio</div>
-    <div class="action">🧭 Qibla</div>
-    <div class="action">🕌 Prayer Times</div>
+    <div class="action" onclick="showPDF()">📖 Arabic - English Quran (PDF)</div>
   </div>
 
+  <!-- Surah Al-Fatiha -->
   <div class="card">
-    <div class="ayah-ar">إِنَّ اللَّهَ مَعَ الصَّابِرِينَ</div>
-    <div class="ayah-en">Indeed, Allah is with the patient.</div>
-  </div>
-</div>
+    <div class="ayah-title">Al-Fatiha — The Opening</div>
 
-<nav>
-  <button class="active">Quran</button>
-  <button>Audio</button>
-  <button>Qibla</button>
-  <button>Prayer</button>
-</nav>
+    <div class="ayah-ar">
+      بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>
+      الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ<br>
+      الرَّحْمَٰنِ الرَّحِيمِ<br>
+      مَالِكِ يَوْمِ الدِّينِ<br>
+      إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ<br>
+      اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ<br>
+      صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ
+    </div>
+
+    <div class="ayah-en">
+      In the name of Allah, the Most Gracious, the Most Merciful.<br>
+      All praise is due to Allah, Lord of the worlds.<br>
+      The Most Gracious, the Most Merciful.<br>
+      Master of the Day of Judgment.<br>
+      You alone we worship, and You alone we ask for help.<br>
+      Guide us to the straight path,<br>
+      The path of those upon whom You have bestowed favor, not of those who have evoked Your anger, nor of those who go astray.
+    </div>
+  </div>
+
+</div>
 
 <!-- Fullscreen PDF Overlay -->
 <div id="pdfOverlay">
