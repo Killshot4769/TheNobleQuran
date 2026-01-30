@@ -11,6 +11,9 @@
 <!-- PayPal SDK -->
 <script src="https://www.paypal.com/sdk/js?client-id=AWcp0r8LzG6bD2i4gXQQdysFU9H34dCc5awmEptv868tjOq80PVqPiefFtISQ0Yac79W9mvow1nV3mPw&currency=GBP"></script>
 
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.111/pdf.min.js"></script>
+
 <style>
 :root {
   --bg: #f6f6f6;
@@ -122,15 +125,16 @@ button {
 
 .pdf-container {
   width: 100%;
-  height: 80vh; /* full height on desktop */
+  height: 80vh;
   border-radius: 10px;
-  overflow: hidden;
+  overflow: auto;
+  border: 1px solid #ccc;
 }
 
-.pdf-container iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
+canvas {
+  width: 100% !important;
+  display: block;
+  margin: 10px auto;
 }
 
 footer {
@@ -141,15 +145,11 @@ footer {
 }
 
 @media (max-width: 900px) {
-  .pdf-container {
-    height: 70vh; /* slightly smaller for tablets */
-  }
+  .pdf-container { height: 70vh; }
 }
 
 @media (max-width: 600px) {
-  .pdf-container {
-    height: 60vh; /* smaller for phones */
-  }
+  .pdf-container { height: 60vh; }
 }
 </style>
 </head>
@@ -177,10 +177,8 @@ footer {
   <h2>Read The Quran 📖</h2>
   <p>Scroll and read directly in your browser.</p>
 
-  <!-- PDF in-browser viewer -->
-  <div class="pdf-container">
-    <iframe src="TheNobleQuran.pdf#toolbar=1&navpanes=1&scrollbar=1"></iframe>
-  </div>
+  <!-- PDF.js Viewer -->
+  <div class="pdf-container" id="pdf-container"></div>
 </div>
 
 <div class="card" style="text-align:center">
@@ -204,7 +202,7 @@ footer {
 </main>
 
 <footer>
-  © 2026 The Noble Quran — No Ads • Naveed Hafeez
+  © 2026 The Noble Quran — No Ads • Open Source
 </footer>
 
 <script>
@@ -251,6 +249,26 @@ function renderPayPal() {
 }
 
 renderPayPal();
+
+/* PDF.js Rendering */
+const url = 'https://naveed-hafeez.github.io/TheNobleQuran/TheNobleQuran.pdf';
+const container = document.getElementById('pdf-container');
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.111/pdf.worker.min.js';
+
+pdfjsLib.getDocument(url).promise.then(pdf => {
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    pdf.getPage(pageNum).then(page => {
+      const viewport = page.getViewport({ scale: 1.2 });
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      container.appendChild(canvas);
+      page.render({ canvasContext: context, viewport: viewport });
+    });
+  }
+});
 </script>
 
 </body>
