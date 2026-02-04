@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Noble Quran Reader</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
+
+<style>
+:root {
+  --bg:#f6f6f6;
+  --card:#ffffff;
+  --text:#222;
+  --accent:#0b3d2e;
+}
+body.dark {
+  --bg:#121212;
+  --card:#1e1e1e;
+  --text:#eaeaea;
+  --accent:#4fd1a5;
+}
+
+body {
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+header {
+  background:var(--accent);
+  color:#fff;
+  padding:1rem;
+  text-align:center;
+  position:relative;
+}
+
+header button {
+  position:absolute;
+  top:.8rem;
+  right:.8rem;
+}
+
+main {
+  max-width:900px;
+  margin:auto;
+  padding:1rem;
+}
+
+.card {
+  background:var(--card);
+  padding:1rem;
+  border-radius:12px;
+  box-shadow:0 6px 15px rgba(0,0,0,.08);
+}
+
+/* ✅ SCROLLABLE PDF AREA */
+.pdf-box {
+  height:75vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+
+  border:1px solid #ccc;
+  border-radius:10px;
+  padding:.5rem;
+
+  scrollbar-width: thin; /* Firefox */
+}
+
+/* WebKit scrollbar (Chrome, Edge, Safari) */
+.pdf-box::-webkit-scrollbar {
+  width:8px;
+}
+.pdf-box::-webkit-scrollbar-thumb {
+  background:#999;
+  border-radius:6px;
+}
+.pdf-box::-webkit-scrollbar-track {
+  background:transparent;
+}
+
+canvas {
+  display:block;
+  margin:0 auto 1rem;
+  width:100%!important;
+  height:auto!important;
+}
+
+footer {
+  text-align:center;
+  padding:1rem;
+  font-size:.8rem;
+  opacity:.7;
+}
+
+@media (max-width:600px) {
+  .pdf-box { height:60vh; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>The Noble Quran</h1>
+  <p>Arabic & English Quran Reader</p>
+  <button onclick="toggleDark()">🌙</button>
+</header>
+
+<main>
+  <div class="card">
+    <h2>Read The Quran 📖</h2>
+    <div class="pdf-box" id="pdf-viewer"></div>
+  </div>
+</main>
+
+<footer>
+© 2026 The Noble Quran — No Ads • Naveed Hafeez
+</footer>
+
+<script>
+/* DARK MODE */
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  localStorage.setItem('dark', document.body.classList.contains('dark'));
+}
+if(localStorage.getItem('dark')==='true'){
+  document.body.classList.add('dark');
+}
+
+/* PREVENT PAGE SCROLL RESTORE */
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+/* PDF.JS */
+const pdfUrl = 'https://raw.githubusercontent.com/Naveed-Hafeez/TheNobleQuran/main/TheNobleQuran.pdf';
+const pdfjsLib = window['pdfjs-dist/build/pdf'];
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.worker.min.js';
+
+const viewer = document.getElementById('pdf-viewer');
+
+async function renderPDF(){
+  viewer.scrollTop = 0;
+  viewer.innerHTML = '';
+
+  const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+  const scale = window.innerWidth < 600 ? 1.4 : 2.2;
+
+  for(let i=1;i<=pdf.numPages;i++){
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({scale});
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    viewer.appendChild(canvas);
+    await page.render({canvasContext:ctx, viewport}).promise;
+  }
+
+  viewer.scrollTop = 0;
+}
+
+renderPDF();
+</script>
+
+</body>
+</html>
