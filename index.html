@@ -169,7 +169,6 @@
     if (localStorage.getItem('darkMode') === 'true') {
       document.body.classList.add('dark');
     }
-
     /* PAYPAL */
     let donationAmount = '5.00';
 
@@ -186,7 +185,9 @@
       paypal.Buttons({
         createOrder: (data, actions) => actions.order.create({
           purchase_units: [{
-            amount: { value: donationAmount }
+            amount: {
+              value: donationAmount
+            }
           }]
         }),
         onApprove: (data, actions) =>
@@ -196,73 +197,35 @@
       }).render('#paypal-button-container');
     }
     renderPayPal();
-
-    /* PDF SCROLL WITH AUTO-SCALE AND LAST PAGE MEMORY */
+    /* PDF Rendering */
     const pdfUrl = 'https://raw.githubusercontent.com/Naveed-Hafeez/TheNobleQuran/main/TheNobleQuran.pdf';
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.worker.min.js';
     const pdfViewer = document.getElementById('pdf-viewer');
-
-    let pdfDoc = null;
-    let currentPage = parseInt(localStorage.getItem('lastPage')) || 1;
-
-    function getScale() {
-      const containerWidth = pdfViewer.clientWidth;
-      return containerWidth / 800; // approximate PDF width for scaling
-    }
-
-    pdfjsLib.getDocument(pdfUrl).promise.then(async pdf => {
-      pdfDoc = pdf;
-      const totalPages = pdf.numPages;
-      if (currentPage > totalPages) currentPage = 1;
-
-      const scale = getScale();
-
-      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale });
+    async function renderPDF() {
+      const pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+      const scale = window.innerWidth < 600 ? 1.5 : 2.2; // higher scale = sharper text
+      pdfViewer.innerHTML = '';
+      for (let i = 1; i <= pdfDoc.numPages; i++) {
+        const page = await pdfDoc.getPage(i);
+        const viewport = page.getViewport({
+          scale
+        });
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = viewport.width;
         canvas.height = viewport.height;
         pdfViewer.appendChild(canvas);
-        await page.render({ canvasContext: ctx, viewport }).promise;
+        await page.render({
+          canvasContext: ctx,
+          viewport
+        }).promise;
       }
-
-      // Scroll to last page
-      const pageHeight = pdfViewer.scrollHeight / totalPages;
-      pdfViewer.scrollTop = pageHeight * (currentPage - 1);
-    });
-
-    // Save current scroll position as last page
-    pdfViewer.addEventListener('scroll', () => {
-      if (!pdfDoc) return;
-      const totalPages = pdfDoc.numPages;
-      const pageHeight = pdfViewer.scrollHeight / totalPages;
-      const scrolledPage = Math.round(pdfViewer.scrollTop / pageHeight) + 1;
-      localStorage.setItem('lastPage', scrolledPage);
-    });
-
-    // Re-render on window resize for proper scaling
+    }
+    renderPDF();
+    // Re-render on resize for clarity
     window.addEventListener('resize', () => {
-      if (!pdfDoc) return;
-      const lastPage = parseInt(localStorage.getItem('lastPage')) || 1;
-      pdfViewer.innerHTML = '';
-      const scale = getScale();
-      pdfDoc.getPage(1).then(async () => {
-        for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-          const page = await pdfDoc.getPage(pageNum);
-          const viewport = page.getViewport({ scale });
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          pdfViewer.appendChild(canvas);
-          await page.render({ canvasContext: ctx, viewport }).promise;
-        }
-        const pageHeight = pdfViewer.scrollHeight / pdfDoc.numPages;
-        pdfViewer.scrollTop = pageHeight * (lastPage - 1);
-      });
+      renderPDF();
     });
   </script>
 
